@@ -1,0 +1,11 @@
+{
+  "name": "eclipse-agents devcontainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {},
+  "extensions": [],
+  "forwardPorts": [],
+  "postCreateCommand": "mvn -q -DskipTests -pl org.eclipse.agents -am package || true",
+  "remoteUser": "vscode"
+}
