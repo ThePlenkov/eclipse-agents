@@ -25,6 +25,16 @@ import org.eclipse.agents.preferences.IPreferenceConstants;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.agents.Activator;
 
+/**
+ * Service for integrating Claude Code using the Agent Client Protocol (ACP).
+ * 
+ * Claude Code ACP implementation: https://github.com/zed-industries/claude-code-acp
+ * Install via npm: npm install @zed-industries/claude-code-acp
+ * Run with: ANTHROPIC_API_KEY=sk-... claude-code-acp
+ * 
+ * This service manages the lifecycle of Claude Code ACP instances and handles
+ * integration with Eclipse IDE over the Agent Client Protocol.
+ */
 public class ClaudeService extends AbstractService implements IPreferenceConstants {
 
     public ClaudeService() {
@@ -33,17 +43,17 @@ public class ClaudeService extends AbstractService implements IPreferenceConstan
 
     @Override
     public String getName() {
-        return "Claude Code CLI";
+        return "Claude Code ACP";
     }
 
     @Override
     public String getFolderName() {
-        return "claude";
+        return "claude-code-acp";
     }
 
     @Override
     public String getId() {
-        return "claude";
+        return "claude-code-acp";
     }
 
     @Override
@@ -56,13 +66,11 @@ public class ClaudeService extends AbstractService implements IPreferenceConstan
             // If user has not customized the startup command, attempt to update the
             // installed Claude CLI using its updater command.
 
-            monitor.subTask("Checking Claude CLI");
+            monitor.subTask("Checking Claude Code ACP");
 
-            ProcessResult result = super.runProcess(new String[] { "claude", "update" });
-
-            if (result.result != 0) {
-                throw new RuntimeException(String.join("\n", result.errorLines));
-            }
+            // claude-code-acp version is managed via npm; no separate update needed here
+            ProcessResult result = new ProcessResult();
+            result.result = 0;
 
             if (Activator.getDefault().getPreferenceStore().getBoolean(P_ACP_PROMPT4MCP)) {
                 if (!Activator.getDefault().getPreferenceStore().getBoolean(P_MCP_SERVER_ENABLED)) {
@@ -148,26 +156,26 @@ public class ClaudeService extends AbstractService implements IPreferenceConstan
 
     @Override
     public String[] getDefaultStartupCommand() {
-        // Default to an external 'claude' CLI; users can customize via preferences
-        // Use `--ide` to automatically connect to the IDE when available.
-        return new String[] {"claude", "--ide"};
+        // Default to 'claude-code-acp' npm package; users can customize via preferences
+        // Requires ANTHROPIC_API_KEY environment variable to be set
+        return new String[] {"claude-code-acp"};
     }
 
     private String[] listMCPCommand() {
-        return new String[] { "claude", "mcp", "list" };
+        return new String[] { "claude-code-acp", "mcp", "list" };
     }
 
     private String[] addMCPCommand() {
-        return new String[] { "claude", "mcp", "add", "--transport", "sse", getMCPName(), getMCPUrl() };
+        return new String[] { "claude-code-acp", "mcp", "add", "--transport", "sse", getMCPName(), getMCPUrl() };
     }
 
     private String[] removeMCPCommand() {
-        return new String[] { "claude", "mcp", "remove", getMCPName() };
+        return new String[] { "claude-code-acp", "mcp", "remove", getMCPName() };
     }
 
     public String getVersion() {
         try {
-            ProcessResult result = super.runProcess(new String[] { "claude", "--version" });
+            ProcessResult result = super.runProcess(new String[] { "claude-code-acp", "--version" });
             if (result.result == 0 && !result.inputLines.isEmpty()) {
                 return result.inputLines.get(0);
             }
